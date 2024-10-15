@@ -3,33 +3,58 @@ package com.aditya.angrybirdsclone.screens;
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class HomeScreen implements Screen {
-    private final Main game;  // Reference to the main game class
-    private Texture homeImage;
+
+    private Main game;
+    private SpriteBatch batch;
+    private Texture homeScreenImage;
+    private Stage stage;
+    private Skin skin;
 
     public HomeScreen(Main game) {
         this.game = game;
-        homeImage = new Texture("homescreen.png");  // Add a home screen image here
+        batch = new SpriteBatch();
+        homeScreenImage = new Texture("homescreen.png");
+        stage = new Stage();
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+        // Create Start Button
+        TextButton startButton = new TextButton("Start", skin);
+        startButton.setPosition(200, 150);
+        startButton.setSize(200, 50);
+
+        // Add a listener to handle click events
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.startGame(); // Transition to Game Screen when button is clicked
+            }
+        });
+
+        stage.addActor(startButton);
+        Gdx.input.setInputProcessor(stage); // Set the stage to handle input events
     }
 
     @Override
-    public void show() {
-        // Called when this screen becomes the current screen
-    }
+    public void show() {}
 
     @Override
     public void render(float delta) {
-        // Clear the screen with a background color
-        Gdx.gl.glClearColor(0.25f, 0.25f, 0.25f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        batch.draw(homeScreenImage, 0, 0);
+        batch.end();
 
-        // Begin drawing
-        game.batch.begin();
-        game.batch.draw(homeImage, 0, 0);  // Draw the home screen image
-        game.batch.end();
+        // Draw UI (buttons)
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -46,7 +71,9 @@ public class HomeScreen implements Screen {
 
     @Override
     public void dispose() {
-        // Dispose of resources to free memory
-        homeImage.dispose();
+        batch.dispose();
+        homeScreenImage.dispose();
+        stage.dispose();
+        skin.dispose();
     }
 }
