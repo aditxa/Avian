@@ -3,18 +3,44 @@ package com.aditya.angrybirdsclone.screens;
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class GameScreen implements Screen {
-    private final Main game;
-    private Texture birdTexture;
-    private Texture structureTexture;
+
+    private Main game;
+    private SpriteBatch batch;
+    private Texture gameImage;
+    private Stage stage;
+    private Skin skin;
 
     public GameScreen(Main game) {
         this.game = game;
-        birdTexture = new Texture("bird.png");  // Add bird image
-        structureTexture = new Texture("structure.png");  // Add structure image
+        batch = new SpriteBatch();
+        gameImage = new Texture("bird.png");  // Example game texture
+        stage = new Stage();
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+        // Create Pause Button
+        TextButton pauseButton = new TextButton("Pause", skin);
+        pauseButton.setPosition(200, 150);
+        pauseButton.setSize(200, 50);
+
+        // Add a listener for the pause button
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.pauseGame();  // Switch to Pause Screen
+            }
+        });
+
+        stage.addActor(pauseButton);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -22,13 +48,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        batch.draw(gameImage, 0, 0);
+        batch.end();
 
-        game.batch.begin();
-        game.batch.draw(birdTexture, 100, 100);  // Draw the bird
-        game.batch.draw(structureTexture, 400, 100);  // Draw the structure
-        game.batch.end();
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -45,7 +70,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        birdTexture.dispose();
-        structureTexture.dispose();
+        batch.dispose();
+        gameImage.dispose();
+        stage.dispose();
+        skin.dispose();
     }
 }
