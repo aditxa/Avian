@@ -3,19 +3,28 @@ package com.aditya.angrybirdsclone;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.aditya.angrybirdsclone.screens.HomeScreen;
+import com.aditya.angrybirdsclone.screens.LevelsScreen;
 
 public class Main extends Game {
     public SpriteBatch batch;
+    private LevelsScreen levelsScreen;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        this.setScreen(new HomeScreen(this)); // Start with the Home Screen
+        levelsScreen = new LevelsScreen(this);  // Initialize the LevelsScreen
+        this.setScreen(new HomeScreen(this));   // Start with the Home Screen
+    }
+
+    // Method to access LevelsScreen from other classes
+    public LevelsScreen getLevelsScreen() {
+        return levelsScreen;
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+        levelsScreen.dispose();  // Make sure to dispose the LevelsScreen resources
         super.dispose();
     }
 }
