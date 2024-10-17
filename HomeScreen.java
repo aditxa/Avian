@@ -9,24 +9,23 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class HomeScreen implements Screen {
     private Main game;
     private Stage stage;
+    private Skin skin;
     private SpriteBatch batch;
     private Texture background;
-    private Skin skin;
 
     public HomeScreen(Main game) {
         this.game = game;
         batch = new SpriteBatch();
-        background = new Texture("homescreen.png"); // Load your home screen image
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        background = new Texture("homescreen.png"); // Your home screen background
 
         Table table = new Table();
         table.setFillParent(true);
@@ -38,7 +37,7 @@ public class HomeScreen implements Screen {
         // Handle Start button click
         startButton.addListener(event -> {
             if (event.isHandled()) {
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new LevelsScreen(game)); // Go to levels screen
                 return true;
             }
             return false;
@@ -64,7 +63,8 @@ public class HomeScreen implements Screen {
     @Override
     public void render(float delta) {
         batch.begin();
-        batch.draw(background, 0, 0);
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         batch.end();
 
         stage.act(delta);
@@ -89,5 +89,6 @@ public class HomeScreen implements Screen {
     public void dispose() {
         stage.dispose();
         background.dispose();
+        batch.dispose();
     }
 }
