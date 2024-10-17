@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class LevelsScreen implements Screen {
     private Main game;
@@ -23,17 +25,20 @@ public class LevelsScreen implements Screen {
         this.game = game;
         this.unlockedLevel = 1;  // Initially only level 1 is unlocked
         batch = new SpriteBatch();
-        background = new Texture("level.png");
+        background = new Texture("level.png"); // Background for Levels Screen
         stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(stage); // Set input processor for the stage
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
+        // Create the table and add level buttons
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-
         createLevelButtons(table);
+
+        // Add Back button to navigate to HomeScreen
+        createBackButton();
     }
 
     private void createLevelButtons(Table table) {
@@ -55,8 +60,31 @@ public class LevelsScreen implements Screen {
         }
     }
 
+    private void createBackButton() {
+        // Load back button texture
+        Texture backTexture = new Texture("back.png"); // Ensure this texture is in the assets folder
+        ImageButton backButton = new ImageButton(new TextureRegionDrawable(backTexture));
+
+        // Position the back button in the top-right corner
+        backButton.setPosition(Gdx.graphics.getWidth() - 80, Gdx.graphics.getHeight() - 80);
+        backButton.setSize(64, 64); // Adjust size if needed
+
+        // Add listener to handle back button click
+        backButton.addListener(event -> {
+            if (backButton.isPressed()) {
+                game.setScreen(new HomeScreen(game)); // Navigate to HomeScreen
+            }
+            return true;
+        });
+
+        // Add the back button to the stage
+        stage.addActor(backButton);
+    }
+
     @Override
-    public void show() {}
+    public void show() {
+        Gdx.input.setInputProcessor(stage); // Reset input processor to stage when shown
+    }
 
     @Override
     public void render(float delta) {
@@ -68,6 +96,7 @@ public class LevelsScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
