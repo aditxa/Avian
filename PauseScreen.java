@@ -14,18 +14,20 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 public class PauseScreen implements Screen {
     private Main game;
     private Stage stage;
-    private SpriteBatch batch;
-    private Texture pauseBackground;
     private Skin skin;
+    private SpriteBatch batch;
+    private Texture background;
+    private GameScreen gameScreen;  // Reference to the GameScreen
 
-    public PauseScreen(Main game) {
+    public PauseScreen(Main game, GameScreen gameScreen) {
         this.game = game;
+        this.gameScreen = gameScreen; // Store the current game screen
         batch = new SpriteBatch();
-        pauseBackground = new Texture("pausescreen.png"); // Load your pause screen image
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        background = new Texture("pausescreen.png"); // Ensure this is the correct pause screen background
 
         Table table = new Table();
         table.setFillParent(true);
@@ -37,7 +39,8 @@ public class PauseScreen implements Screen {
         // Handle Resume button click
         resumeButton.addListener(event -> {
             if (event.isHandled()) {
-                game.setScreen(new GameScreen(game)); // Go back to game screen
+                gameScreen.resumeGame(); // Call method to resume the game
+                game.setScreen(gameScreen); // Switch back to the game screen
                 return true;
             }
             return false;
@@ -46,7 +49,7 @@ public class PauseScreen implements Screen {
         // Handle Exit button click
         exitButton.addListener(event -> {
             if (event.isHandled()) {
-                game.setScreen(new HomeScreen(game)); // Go back to home screen
+                game.setScreen(new LevelsScreen(game)); // Return to home screen
                 return true;
             }
             return false;
@@ -63,7 +66,7 @@ public class PauseScreen implements Screen {
     @Override
     public void render(float delta) {
         batch.begin();
-        batch.draw(pauseBackground, 0, 0);
+        batch.draw(background, 0, 0);
         batch.end();
 
         stage.act(delta);
@@ -87,6 +90,7 @@ public class PauseScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        pauseBackground.dispose();
+        background.dispose();
+        batch.dispose();
     }
 }
