@@ -5,42 +5,57 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class HomeScreen implements Screen {
-
     private Main game;
-    private SpriteBatch batch;
-    private Texture homeScreenImage;
     private Stage stage;
+    private SpriteBatch batch;
+    private Texture background;
     private Skin skin;
 
     public HomeScreen(Main game) {
         this.game = game;
         batch = new SpriteBatch();
-        homeScreenImage = new Texture("homescreen.png");
-        stage = new Stage();
+        background = new Texture("homescreen.png"); // Load your home screen image
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        // Create Start Button
-        TextButton startButton = new TextButton("Start", skin);
-        startButton.setPosition(200, 150);
-        startButton.setSize(200, 50);
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
 
-        // Add a listener to handle click events
-        startButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.startGame(); // Transition to Game Screen when button is clicked
+        TextButton startButton = new TextButton("Start", skin);
+        TextButton exitButton = new TextButton("Exit", skin);
+
+        // Handle Start button click
+        startButton.addListener(event -> {
+            if (event.isHandled()) {
+                game.setScreen(new GameScreen(game));
+                return true;
             }
+            return false;
         });
 
-        stage.addActor(startButton);
-        Gdx.input.setInputProcessor(stage); // Set the stage to handle input events
+        // Handle Exit button click
+        exitButton.addListener(event -> {
+            if (event.isHandled()) {
+                Gdx.app.exit(); // Exit the application
+                return true;
+            }
+            return false;
+        });
+
+        table.add(startButton).fillX().uniformX();
+        table.row().pad(10, 0, 10, 0);
+        table.add(exitButton).fillX().uniformX();
     }
 
     @Override
@@ -49,16 +64,17 @@ public class HomeScreen implements Screen {
     @Override
     public void render(float delta) {
         batch.begin();
-        batch.draw(homeScreenImage, 0, 0);
+        batch.draw(background, 0, 0);
         batch.end();
 
-        // Draw UI (buttons)
         stage.act(delta);
         stage.draw();
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
 
     @Override
     public void pause() {}
@@ -71,9 +87,7 @@ public class HomeScreen implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        homeScreenImage.dispose();
         stage.dispose();
-        skin.dispose();
+        background.dispose();
     }
 }
