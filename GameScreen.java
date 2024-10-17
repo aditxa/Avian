@@ -5,42 +5,46 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class GameScreen implements Screen {
-
     private Main game;
     private SpriteBatch batch;
-    private Texture gameImage;
+    private Texture background;
+    private Texture catapult;
+    private Texture pauseTexture;
     private Stage stage;
     private Skin skin;
 
     public GameScreen(Main game) {
         this.game = game;
         batch = new SpriteBatch();
-        gameImage = new Texture("bird.png");  // Example game texture
-        stage = new Stage();
+        background = new Texture("gamebackground.png"); // Load your game background
+        catapult = new Texture("catapult.png"); // Load your catapult image
+        pauseTexture = new Texture("pause.png"); // Load your pause button image
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        // Create Pause Button
-        TextButton pauseButton = new TextButton("Pause", skin);
-        pauseButton.setPosition(200, 150);
-        pauseButton.setSize(200, 50);
+        // Create pause button
+        ImageButton pauseButton = new ImageButton(new TextureRegionDrawable(pauseTexture));
+        pauseButton.setPosition(Gdx.graphics.getWidth() - 80, Gdx.graphics.getHeight() - 80);
 
-        // Add a listener for the pause button
-        pauseButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.pauseGame();  // Switch to Pause Screen
+        pauseButton.addListener(event -> {
+            if (event.isHandled()) {
+                game.setScreen(new PauseScreen(game)); // Go to pause screen
+                return true;
             }
+            return false;
         });
 
         stage.addActor(pauseButton);
-        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -49,7 +53,8 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         batch.begin();
-        batch.draw(gameImage, 0, 0);
+        batch.draw(background, 0, 0);
+        batch.draw(catapult, 100, 100); // Position the catapult
         batch.end();
 
         stage.act(delta);
@@ -57,7 +62,9 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
 
     @Override
     public void pause() {}
@@ -71,8 +78,9 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        gameImage.dispose();
+        background.dispose();
+        catapult.dispose();
+        pauseTexture.dispose();
         stage.dispose();
-        skin.dispose();
     }
 }
