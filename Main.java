@@ -12,11 +12,11 @@ public class Main extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        levelsScreen = new LevelsScreen(this);  // Initialize the LevelsScreen
-        this.setScreen(new HomeScreen(this));   // Start with the Home Screen
+        levelsScreen = new LevelsScreen(this);  // Initialize LevelsScreen
+        this.setScreen(new HomeScreen(this));   // Start at the HomeScreen
     }
 
-    // Method to access LevelsScreen from other classes
+    // Method to access LevelsScreen
     public LevelsScreen getLevelsScreen() {
         return levelsScreen;
     }
@@ -24,7 +24,6 @@ public class Main extends Game {
     @Override
     public void dispose() {
         batch.dispose();
-        levelsScreen.dispose();  // Make sure to dispose the LevelsScreen resources
-        super.dispose();
+        levelsScreen.dispose(); // Ensure resources are disposed
     }
 }
