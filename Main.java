@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.aditya.angrybirdsclone.screens.HomeScreen;
 import com.aditya.angrybirdsclone.screens.LevelsScreen;
+/////////////////
+import com.aditya.angrybirdsclone.screens.GameScreen;
 
 public class Main extends Game {
     public SpriteBatch batch;
@@ -11,9 +13,12 @@ public class Main extends Game {
 
     @Override
     public void create() {
+        //////////////////////////////
         batch = new SpriteBatch();
         levelsScreen = new LevelsScreen(this);  // Initialize LevelsScreen
-        this.setScreen(new HomeScreen(this));   // Start at the HomeScreen
+        this.setScreen(new HomeScreen(this));// Start at the HomeScreen
+        ///////////////////////////
+//        setScreen(new GameScreen(this, 1));
     }
 
     // Method to access LevelsScreen
