@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -28,8 +30,8 @@ public class GameScreen implements Screen {
 
     private Image bird;
     private Image catapult;
-    private Image pig;
-    private Image block1, block2, block3;
+    private Array<Image> pigs;
+    private Array<Image> blocks;
 
     private Vector2 catapultPos;
     private Vector2 birdPos;
@@ -44,6 +46,7 @@ public class GameScreen implements Screen {
     private static final float GRAVITY = -9.8f;
 
     private Array<Vector2> trajectoryPoints;
+    private int birdsRemaining = 3;  // Track birds left to launch
 
     public GameScreen(Main game, int level) {
         this.game = game;
@@ -62,37 +65,38 @@ public class GameScreen implements Screen {
         // Setup catapult
         catapult = new Image(new Texture("catapult.png"));
         catapult.setPosition(50, 50);
-        catapultPos = new Vector2(catapult.getX() + catapult.getWidth() / 2,
-            catapult.getY() + catapult.getHeight() - 20);
+        catapultPos = new Vector2(catapult.getX() + catapult.getWidth() / 2, catapult.getY() + catapult.getHeight() - 20);
 
         // Setup bird
         bird = new Image(new Texture("bird.png"));
         bird.setSize(50, 50);
         resetBird();
 
-        // Setup obstacles
-        pig = new Image(new Texture("pig.png"));
-        pig.setPosition(450, 300);
-        pig.setSize(70, 70);
+        // Setup pigs
+        pigs = new Array<>();
+        for (int i = 0; i < 3; i++) {
+            Image pig = new Image(new Texture("pig.png"));
+            pig.setPosition(450 + i * 80, 300);
+            pig.setSize(70, 70);
+            pigs.add(pig);
+            stage.addActor(pig);
+        }
 
-        block1 = new Image(new Texture("block.png"));
-        block1.setPosition(470, 213);
-        block1.setSize(30, 100);
-
-        block2 = new Image(new Texture("block.png"));
-        block2.setPosition(470, 135);
-        block2.setSize(30, 100);
-
-        block3 = new Image(new Texture("block.png"));
-        block3.setPosition(470, 57);
-        block3.setSize(30, 100);
+        // Setup blocks
+        blocks = new Array<>();
+        for (int i = 0; i < 3; i++) {
+            Image block = new Image(new Texture("block.png"));
+            block.setPosition(470, 57 + i * 78);
+            block.setSize(30, 100);
+            blocks.add(block);
+            stage.addActor(block);
+        }
 
         // Setup pause button
         Texture pauseTexture = new Texture("pause.png");
         pauseButton = new ImageButton(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(Gdx.graphics.getWidth() - 80, Gdx.graphics.getHeight() - 80);
         pauseButton.setSize(64, 64);
-
         pauseButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -105,10 +109,6 @@ public class GameScreen implements Screen {
         // Add elements to stage
         stage.addActor(catapult);
         stage.addActor(bird);
-        stage.addActor(pig);
-        stage.addActor(block1);
-        stage.addActor(block2);
-        stage.addActor(block3);
         stage.addActor(pauseButton);
 
         // Setup bird input listener
@@ -195,16 +195,38 @@ public class GameScreen implements Screen {
             birdPos.add(velocity.x * delta, velocity.y * delta);
             bird.setPosition(birdPos.x - bird.getWidth() / 2, birdPos.y - bird.getHeight() / 2);
 
-            // Reset bird if it goes off screen
+            // Reset bird if it goes off screen or hits pig
             if (birdPos.y < 0 || birdPos.x > Gdx.graphics.getWidth()) {
-                resetBird();
+                birdsRemaining--;
+                if (birdsRemaining <= 0) {
+                    game.setScreen(new EndScreen(game, "Level Failed!",currentLevel, false));
+                } else {
+                    resetBird();
+                }
             }
         }
     }
 
     private void checkCollisions() {
-        // Implement collision detection logic here
-        // For simplicity, we're not implementing it in this example
+        Rectangle birdBounds = new Rectangle(birdPos.x, birdPos.y, bird.getWidth(), bird.getHeight());
+
+        for (Image pig : pigs) {
+            // Manually create a rectangle for the pig's bounds
+            Rectangle pigBounds = new Rectangle(pig.getX(), pig.getY(), pig.getWidth(), pig.getHeight());
+
+            // Check if the bird overlaps with the pig
+            if (Intersector.overlaps(birdBounds, pigBounds)) {
+                pig.remove();  // Pig "dies"
+                pigs.removeValue(pig, true);  // Remove the pig from the array
+                resetBird();  // Reset the bird's position for the next shot
+
+                // Check if all pigs are destroyed
+                if (pigs.size == 0) {
+                    game.setScreen(new EndScreen(game, "Level Complete!",currentLevel,true));
+                }
+                break;
+            }
+        }
     }
 
     private void renderTrajectory() {
