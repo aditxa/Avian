@@ -52,9 +52,10 @@ public class HomeScreen implements Screen {
             return false;
         });
 
-        table.add(startButton).fillX().uniformX();
-        table.row().pad(10, 0, 10, 0);
-        table.add(exitButton).fillX().uniformX();
+        table.add(startButton).fillX().uniformX().minWidth(150).minHeight(50).pad(10); // Make the button bigger with padding
+        table.row().pad(1, 0, 10, 0);
+        table.add(exitButton).fillX().uniformX().minWidth(150).minHeight(50).pad(10); // Same for the exit button
+
     }
 
     @Override
