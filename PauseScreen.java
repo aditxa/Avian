@@ -3,12 +3,15 @@ package com.aditya.angrybirdsclone.screens;
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class PauseScreen implements Screen {
@@ -33,8 +36,23 @@ public class PauseScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
+        // Create border texture
+        Texture borderTexture = createBorderTexture(2, Color.WHITE); // 2px border thickness
+
         TextButton resumeButton = new TextButton("Resume", skin);
         TextButton exitButton = new TextButton("Exit", skin);
+
+        // Set border drawable
+        resumeButton.getStyle().up = new TextureRegionDrawable(borderTexture);
+        exitButton.getStyle().up = new TextureRegionDrawable(borderTexture);
+
+        // Set text color for normal state
+        resumeButton.getStyle().fontColor = Color.BLACK;
+        exitButton.getStyle().fontColor = Color.BLACK;
+
+        // Set text color for hover state (over)
+        resumeButton.getStyle().overFontColor = Color.WHITE; // Change as desired
+        exitButton.getStyle().overFontColor = Color.WHITE; // Change as desired
 
         // Resume button listener
         resumeButton.addListener(event -> {
@@ -60,6 +78,22 @@ public class PauseScreen implements Screen {
         table.add(exitButton).fillX().uniformX();
     }
 
+    private Texture createBorderTexture(int borderWidth, Color borderColor) {
+        Pixmap pixmap = new Pixmap(200, 100, Pixmap.Format.RGBA8888);
+        pixmap.setColor(borderColor);
+        pixmap.fill();
+
+        // Draw border
+        pixmap.setColor(Color.ORANGE);
+        pixmap.drawRectangle(0, 0, 200, 100);
+        pixmap.setColor(borderColor);
+        pixmap.drawRectangle(borderWidth, borderWidth, 200 - 2 * borderWidth, 100 - 2 * borderWidth);
+
+        Texture borderTexture = new Texture(pixmap);
+        pixmap.dispose(); // Dispose of pixmap after creating texture
+        return borderTexture;
+    }
+
     @Override
     public void show() {}
 
@@ -67,6 +101,7 @@ public class PauseScreen implements Screen {
     public void render(float delta) {
         batch.begin();
         batch.draw(background, 0, 0);
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
 
         stage.act(delta);
