@@ -4,15 +4,15 @@ import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -22,17 +22,21 @@ public class GameScreen implements Screen {
     private Stage stage;
     private boolean isPaused = false;
     private ImageButton pauseButton;
-    private int currentLevel; // Store the current level
+    private int currentLevel;
 
-    // Additional variables for game objects
     private Image bird;
-    private Sprite catapultSprite;
-    private Sprite pigSprite;
-    private Sprite block1Sprite, block2Sprite, block3Sprite;
+    private Group catapultGroup;
+    private Image catapultImage;
+    private Image pig;
+    private Image block1, block2, block3;
+
+    // Initial position for the bird
+    private float initialBirdX = 50;
+    private float initialBirdY = 67;
 
     public GameScreen(Main game, int level) {
         this.game = game;
-        this.currentLevel = level; // Assign the level number
+        this.currentLevel = level;
         batch = new SpriteBatch();
         background = new Texture("game.png");
         catapultTexture = new Texture("catapult.png");
@@ -49,54 +53,62 @@ public class GameScreen implements Screen {
         pauseButton.addListener(event -> {
             if (pauseButton.isPressed() && !isPaused) {
                 isPaused = true;
-                game.setScreen(new PauseScreen(game, this)); // Go to PauseScreen
+                game.setScreen(new PauseScreen(game, this));
             }
             return true;
         });
 
         stage.addActor(pauseButton);
 
-        // Initialize the catapult sprite
-        catapultSprite = new Sprite(catapultTexture);
-        catapultSprite.setPosition(100, 100); // Set catapult position
+        // Initialize the catapult and bird
+        catapultGroup = new Group();
+        catapultImage = new Image(catapultTexture);
+        catapultImage.setPosition(70, 60);
+        catapultGroup.addActor(catapultImage);
 
         // Initialize the bird
         bird = new Image(new Texture("bird.png"));
-        bird.setPosition(50, 120); // Bird waiting on the left side of catapult
+        bird.setPosition(initialBirdX, initialBirdY);
         bird.setSize(50, 50);
-        addDragListenerToBird(); // Make bird draggable
+        addClickListenerToBird();
+        stage.addActor(bird);  // Add bird directly to stage
 
-        // Initialize the pig and blocks (tower)
-        pigSprite = new Sprite(new Texture("pig.png"));
-        pigSprite.setPosition(700, 300); // Set pig's position on the tower
+        // Initialize the pig and blocks
+        pig = new Image(new Texture("pig.png"));
+        pig.setPosition(450, 300);
+        pig.setSize(70, 70);
 
-        block1Sprite = new Sprite(new Texture("block.png"));
-        block1Sprite.setPosition(650, 250); // Bottom block
+        block1 = new Image(new Texture("block.png"));
+        block1.setPosition(470, 213);
+        block1.setSize(30, 100);
+        block2 = new Image(new Texture("block.png"));
+        block2.setPosition(470, 135);
+        block2.setSize(30, 100);
+        block3 = new Image(new Texture("block.png"));
+        block3.setPosition(470, 57);
+        block3.setSize(30, 100);
 
-        block2Sprite = new Sprite(new Texture("block.png"));
-        block2Sprite.setPosition(670, 280); // Middle block
-
-        block3Sprite = new Sprite(new Texture("block.png"));
-        block3Sprite.setPosition(690, 310); // Top block
-
-        // Add bird to the stage
-        stage.addActor(bird);
+        // Add to stage
+        stage.addActor(catapultGroup);
+        stage.addActor(pig);
+        stage.addActor(block1);
+        stage.addActor(block2);
+        stage.addActor(block3);
     }
 
-    private void addDragListenerToBird() {
-        bird.addListener(new DragListener() {
-            public void dragStart(InputListener event, float x, float y, int pointer) {
-                // Optionally handle drag start if needed
-            }
-
-            public void drag(InputListener event, float x, float y, int pointer) {
-                // Move the bird based on drag
-                bird.moveBy(x - bird.getWidth() / 2, y - bird.getHeight() / 2);
-            }
-
-            public void dragStop(InputListener event, float x, float y, int pointer) {
-                // When drag stops, place bird on catapult
-                bird.setPosition(catapultSprite.getX() + 10, catapultSprite.getY() + 40);
+    private void addClickListenerToBird() {
+        bird.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (bird.getX() == initialBirdX && bird.getY() == initialBirdY) {
+                    // Move bird to catapult
+                    bird.setPosition((catapultImage.getX() + (catapultImage.getWidth() - bird.getWidth()) / 2)-9,
+                        catapultImage.getY() + catapultImage.getHeight() - bird.getHeight() / 2);
+                } else {
+                    // Return bird to initial position
+                    bird.setPosition(initialBirdX, initialBirdY);
+                }
+                return true;
             }
         });
     }
@@ -108,11 +120,6 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        catapultSprite.draw(batch); // Draw catapult
-        pigSprite.draw(batch); // Draw pig
-        block1Sprite.draw(batch); // Draw bottom block
-        block2Sprite.draw(batch); // Draw middle block
-        block3Sprite.draw(batch); // Draw top block
         batch.end();
 
         if (!isPaused) {
@@ -143,9 +150,8 @@ public class GameScreen implements Screen {
         stage.dispose();
     }
 
-    // Method to resume the game
     public void resumeGame() {
         isPaused = false;
-        Gdx.input.setInputProcessor(stage); // Reset the input processor to handle the stage
+        Gdx.input.setInputProcessor(stage);
     }
 }
