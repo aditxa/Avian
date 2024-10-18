@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.aditya.angrybirdsclone.screens.HomeScreen;
 import com.aditya.angrybirdsclone.screens.LevelsScreen;
-/////////////////
 import com.aditya.angrybirdsclone.screens.GameScreen;
 
 public class Main extends Game {
