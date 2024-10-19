@@ -52,10 +52,10 @@ public class EndScreen implements Screen {
 
         TextButton messageButton = new TextButton(message, skin);
         TextButton restartButton = new TextButton("Retry", skin);
-        TextButton homeButton = new TextButton("Exit", skin);
+        TextButton exitButton = new TextButton("Exit", skin);
 
         // Set border drawable and text colors for all buttons
-        for (TextButton button : new TextButton[]{messageButton, restartButton, homeButton}) {
+        for (TextButton button : new TextButton[]{messageButton, restartButton, exitButton}) {
             button.getStyle().up = new TextureRegionDrawable(borderTexture);
             button.getStyle().fontColor = Color.BLACK;
             button.getStyle().overFontColor = Color.WHITE;
@@ -71,9 +71,9 @@ public class EndScreen implements Screen {
         });
 
         // Home button listener
-        homeButton.addListener(event -> {
-            if (homeButton.isPressed()) {
-                game.setScreen(new HomeScreen(game));
+        exitButton.addListener(event -> {
+            if (exitButton.isPressed()) {
+                game.setScreen(new LevelsScreen(game));
                 return true;
             }
             return false;
@@ -83,7 +83,7 @@ public class EndScreen implements Screen {
         table.row();
         table.add(restartButton).fillX().uniformX().pad(10);
         table.row();
-        table.add(homeButton).fillX().uniformX().pad(10);
+        table.add(exitButton).fillX().uniformX().pad(10);
 
         if (levelCompleted) {
             TextButton nextLevelButton = new TextButton("Next Level", skin);
