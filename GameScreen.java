@@ -74,7 +74,7 @@ public class GameScreen implements Screen {
 
         // Setup pigs
         pigs = new Array<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             Image pig = new Image(new Texture("pig.png"));
             pig.setPosition(450 + i * 80, 300);
             pig.setSize(70, 70);
