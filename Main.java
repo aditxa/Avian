@@ -2,9 +2,10 @@ package com.aditya.angrybirdsclone;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.aditya.angrybirdsclone.screens.HomeScreen;
-import com.aditya.angrybirdsclone.screens.LevelsScreen;
-import com.aditya.angrybirdsclone.screens.GameScreen;
+import com.aditya.angrybirdsclone.screen.HomeScreen;
+import com.aditya.angrybirdsclone.screen.LevelsScreen;
+/////////////////
+import com.aditya.angrybirdsclone.screen.GameScreen;
 
 public class Main extends Game {
     public SpriteBatch batch;
