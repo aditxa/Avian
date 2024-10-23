@@ -1,4 +1,4 @@
-package com.aditya.angrybirdsclone.screens;
+package com.aditya.angrybirdsclone.screen;
 
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
@@ -46,7 +46,7 @@ public class GameScreen implements Screen {
     private static final float GRAVITY = -9.8f;
 
     private Array<Vector2> trajectoryPoints;
-    private int birdsRemaining = 3;  // Track birds left to launch
+    private int birdsRemaining;  // Track birds left to launch
 
     public GameScreen(Main game, int level) {
         this.game = game;
@@ -72,24 +72,16 @@ public class GameScreen implements Screen {
         bird.setSize(50, 50);
         resetBird();
 
-        // Setup pigs
+        // Setup pigs and blocks based on level
         pigs = new Array<>();
-        for (int i = 0; i < 1; i++) {
-            Image pig = new Image(new Texture("pig.png"));
-            pig.setPosition(450 + i * 80, 300);
-            pig.setSize(70, 70);
-            pigs.add(pig);
-            stage.addActor(pig);
-        }
-
-        // Setup blocks
         blocks = new Array<>();
-        for (int i = 0; i < 3; i++) {
-            Image block = new Image(new Texture("block.png"));
-            block.setPosition(470, 57 + i * 78);
-            block.setSize(30, 100);
-            blocks.add(block);
-            stage.addActor(block);
+
+        if (currentLevel == 1) {
+            setupLevel1();
+            birdsRemaining = 3;
+        } else if (currentLevel == 2) {
+            setupLevel2();
+            birdsRemaining = 2;
         }
 
         // Setup pause button
@@ -148,6 +140,58 @@ public class GameScreen implements Screen {
         });
     }
 
+    // New method to setup Level 1
+    private void setupLevel1() {
+        // Setup pigs
+        Image pig = new Image(new Texture("pig.png"));
+        pig.setPosition(450, 300);
+        pig.setSize(70, 70);
+        pigs.add(pig);
+        stage.addActor(pig);
+
+        // Setup blocks
+        for (int i = 0; i < 3; i++) {
+            Image block = new Image(new Texture("block.png"));
+            block.setPosition(470, 57 + i * 78);
+            block.setSize(30, 100);
+            blocks.add(block);
+            stage.addActor(block);
+        }
+    }
+
+    // New method to setup Level 2
+    private void setupLevel2() {
+        // First tower
+        for (int i = 0; i < 3; i++) {
+            Image block = new Image(new Texture("block.png"));
+            block.setPosition(400, 57 + i * 78);
+            block.setSize(30, 100);
+            blocks.add(block);
+            stage.addActor(block);
+        }
+
+        Image pig1 = new Image(new Texture("pig.png"));
+        pig1.setPosition(380, 300);
+        pig1.setSize(70, 70);
+        pigs.add(pig1);
+        stage.addActor(pig1);
+
+        // Second tower
+        for (int i = 0; i < 4; i++) {
+            Image block = new Image(new Texture("block.png"));
+            block.setPosition(550, 57 + i * 78);
+            block.setSize(30, 100);
+            blocks.add(block);
+            stage.addActor(block);
+        }
+
+        Image pig2 = new Image(new Texture("pig.png"));
+        pig2.setPosition(530, 378);
+        pig2.setSize(70, 70);
+        pigs.add(pig2);
+        stage.addActor(pig2);
+    }
+
     private void resetBird() {
         birdPos = new Vector2(catapultPos.x, catapultPos.y);
         bird.setPosition(birdPos.x - bird.getWidth() / 2, birdPos.y - bird.getHeight() / 2);
@@ -199,7 +243,7 @@ public class GameScreen implements Screen {
             if (birdPos.y < 0 || birdPos.x > Gdx.graphics.getWidth()) {
                 birdsRemaining--;
                 if (birdsRemaining <= 0) {
-                    game.setScreen(new EndScreen(game, "Level Failed!",currentLevel, false));
+                    game.setScreen(new EndScreen(game, "Level Failed!", currentLevel, false));
                 } else {
                     resetBird();
                 }
@@ -210,20 +254,28 @@ public class GameScreen implements Screen {
     private void checkCollisions() {
         Rectangle birdBounds = new Rectangle(birdPos.x, birdPos.y, bird.getWidth(), bird.getHeight());
 
-        for (Image pig : pigs) {
-            // Manually create a rectangle for the pig's bounds
+        // Check collisions with pigs
+        for (Image pig : new Array.ArrayIterator<>(pigs)) {
             Rectangle pigBounds = new Rectangle(pig.getX(), pig.getY(), pig.getWidth(), pig.getHeight());
-
-            // Check if the bird overlaps with the pig
             if (Intersector.overlaps(birdBounds, pigBounds)) {
-                pig.remove();  // Pig "dies"
-                pigs.removeValue(pig, true);  // Remove the pig from the array
-                resetBird();  // Reset the bird's position for the next shot
+                pig.remove();
+                pigs.removeValue(pig, true);
+                resetBird();
 
                 // Check if all pigs are destroyed
                 if (pigs.size == 0) {
-                    game.setScreen(new EndScreen(game, "Level Complete!",currentLevel,true));
+                    game.setScreen(new EndScreen(game, "Level Complete!", currentLevel, true));
                 }
+                break;
+            }
+        }
+
+        // Check collisions with blocks
+        for (Image block : new Array.ArrayIterator<>(blocks)) {
+            Rectangle blockBounds = new Rectangle(block.getX(), block.getY(), block.getWidth(), block.getHeight());
+            if (Intersector.overlaps(birdBounds, blockBounds)) {
+                block.remove();
+                blocks.removeValue(block, true);
                 break;
             }
         }
