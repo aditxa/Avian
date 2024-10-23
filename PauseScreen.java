@@ -1,4 +1,4 @@
-package com.aditya.angrybirdsclone.screens;
+package com.aditya.angrybirdsclone.screen;
 
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
@@ -128,4 +128,5 @@ public class PauseScreen implements Screen {
         background.dispose();
         batch.dispose();
     }
+
 }
