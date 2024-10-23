@@ -139,7 +139,7 @@
 //    }
 //}
 
-package com.aditya.angrybirdsclone.screens;
+package com.aditya.angrybirdsclone.screen;
 
 import com.aditya.angrybirdsclone.Main;
 import com.badlogic.gdx.Gdx;
@@ -185,15 +185,15 @@ public class LevelsScreen implements Screen {
     }
 
     private void createLevelButtons(Table table) {
-        for (int i = 1; i <= 10; i++) {
+        // Changed to 2 levels
+        for (int i = 1; i <= 2; i++) {
             TextButton levelButton = new TextButton("Level " + i, skin);
 
-            // Set button color based on unlocked status
             if (i <= unlockedLevel) {
-                levelButton.setColor(Color.ORANGE);  // Unlocked level color
+                levelButton.setColor(Color.ORANGE);
             } else {
-                levelButton.setColor(terracottaColor);  // Locked level color
-                levelButton.setDisabled(true);  // Disable button if level is locked
+                levelButton.setColor(terracottaColor);
+                levelButton.setDisabled(true);
             }
 
             table.add(levelButton).pad(10).fillX().uniformX();
@@ -201,13 +201,13 @@ public class LevelsScreen implements Screen {
             final int currentLevel = i;
             levelButton.addListener(event -> {
                 if (event.isHandled() && currentLevel <= unlockedLevel) {
-                    game.setScreen(new GameScreen(game, currentLevel)); // Start the game at the selected level
+                    game.setScreen(new GameScreen(game, currentLevel));
                     return true;
                 }
                 return false;
             });
 
-            if (i % 2 == 0) table.row();  // Arrange in rows of two buttons
+            if (i % 2 == 0) table.row();
         }
     }
 
@@ -296,4 +296,3 @@ public class LevelsScreen implements Screen {
         }
     }
 }
-
